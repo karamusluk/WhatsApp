@@ -3,21 +3,33 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import * as React from 'react';
-import { ColorSchemeName } from 'react-native';
+import { MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
+import {
+  NavigationContainer,
+  DefaultTheme,
+  DarkTheme,
+} from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import * as React from "react";
+import { StyleSheet, ColorSchemeName, View } from "react-native";
+import Colors from "../constants/Colors";
 
-import NotFoundScreen from '../screens/NotFoundScreen';
-import { RootStackParamList } from '../types';
-import BottomTabNavigator from './BottomTabNavigator';
-import LinkingConfiguration from './LinkingConfiguration';
+import NotFoundScreen from "../screens/NotFoundScreen";
+import { RootStackParamList } from "../types";
+import MainTabNavigator from "./MainTabNavigator";
+import LinkingConfiguration from "./LinkingConfiguration";
+import useColorScheme from "../hooks/useColorScheme";
 
-export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
+export default function Navigation({
+  colorScheme,
+}: {
+  colorScheme: ColorSchemeName;
+}) {
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
-      theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+    >
       <RootNavigator />
     </NavigationContainer>
   );
@@ -28,10 +40,59 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
 const Stack = createStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
+  const colorScheme = useColorScheme();
+
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Root" component={BottomTabNavigator} />
-      <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: Colors.light.tint,
+          shadowOpacity: 0, // for ios
+          elevation: 0, // for android
+        },
+        headerTintColor: Colors.light.background,
+        headerTitleAlign: "left",
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+      }}
+    >
+      <Stack.Screen
+        name="Root"
+        component={MainTabNavigator}
+        options={{
+          title: "WhatsApp",
+          headerRight: () => (
+            <View style={styles.headerRight}>
+              <Octicons
+                name="search"
+                size={21}
+                color={Colors[colorScheme].background}
+              />
+              <MaterialCommunityIcons
+                name="dots-vertical"
+                size={21}
+                color={Colors[colorScheme].background}
+              />
+            </View>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="NotFound"
+        component={NotFoundScreen}
+        options={{ title: "Oops!" }}
+      />
     </Stack.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  headerRight: {
+    flexDirection: "row",
+    width: 60,
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginRight: 10,
+  },
+});
